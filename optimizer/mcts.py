@@ -101,7 +101,9 @@ class MCTSSearchEngine:
             children = self._expand(selected_node)
             
             if not children:
-                self.log("⚠️  无法扩展节点")
+                self.log("⚠️  无法扩展节点，标记为已访问")
+                # 即使无法生成子节点，也要增加 visits，避免下次再次选中
+                selected_node.visits += 1
                 continue
             
             self.log(f"✓ 生成 {len(children)} 个子节点")

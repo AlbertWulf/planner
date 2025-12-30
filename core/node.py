@@ -98,11 +98,12 @@ class Node:
         判断节点是否已完全扩展。
         
         对于线性 pipeline，完全扩展意味着：
-        - 已经尝试了所有操作的算子切换
-        - 已经尝试了相邻操作的重排（如果适用）
+        - 已经至少尝试过一次扩展
+        - 有子节点，或者尝试扩展但无法生成子节点
         """
-        # 简化实现：如果有子节点且访问次数 > 子节点数，认为已充分扩展
-        return len(self.children) > 0 and self.visits > len(self.children) * 2
+        # 如果节点已经有子节点，认为已扩展
+        # 如果访问次数 > 0 但没有子节点，说明无法扩展
+        return len(self.children) > 0 or self.visits > 0
     
     def get_ucb_score(self, exploration_weight: float = 1.414) -> float:
         """

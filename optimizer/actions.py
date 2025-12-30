@@ -4,7 +4,7 @@
 定义可以对 pipeline 进行的优化动作。
 """
 
-from typing import List, Callable
+from typing import List, Callable, Dict
 from planner.core.pipeline import Pipeline, Operation
 from planner.core.node import Node
 import random
@@ -196,6 +196,8 @@ class ActionGenerator:
             ReorderOperationsAction(),
             # ParameterTuningAction(),  # 可选
         ]
+        # 记录每个节点已经尝试过的动作
+        self.node_attempted_actions: Dict[str, set] = {}
     
     def get_applicable_actions(self, pipeline: Pipeline) -> List[OptimizationAction]:
         """
@@ -213,6 +215,9 @@ class ActionGenerator:
         """
         为节点生成子节点。
         
+        改进：每次只尝试一个动作，并记录已尝试的动作，
+        以便下次可以尝试其他动作。
+        
         Args:
             node: 父节点
             max_children: 最大子节点数
@@ -221,13 +226,35 @@ class ActionGenerator:
             生成的子节点列表
         """
         pipeline = node.pipeline
+        node_id = node.get_id()
+        
+        # 获取可用动作
         applicable_actions = self.get_applicable_actions(pipeline)
         
         if not applicable_actions:
             return []
         
-        # 随机选择一个动作
-        action = random.choice(applicable_actions)
+        # 获取此节点已尝试过的动作
+        if node_id not in self.node_attempted_actions:
+            self.node_attempted_actions[node_id] = set()
+        
+        attempted = self.node_attempted_actions[node_id]
+        
+        # 过滤出未尝试的动作
+        untried_actions = [
+            action for action in applicable_actions 
+            if action.name not in attempted
+        ]
+        
+        if not untried_actions:
+            # 所有动作都已尝试，随机选择一个
+            action = random.choice(applicable_actions)
+        else:
+            # 选择一个未尝试的动作
+            action = random.choice(untried_actions)
+        
+        # 记录已尝试
+        attempted.add(action.name)
         
         # 应用动作生成新 pipeline
         new_pipelines = action.apply(pipeline)

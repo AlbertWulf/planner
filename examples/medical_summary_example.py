@@ -4,6 +4,14 @@
 展示如何使用 Pipeline Optimizer 优化一个医疗文档处理 pipeline。
 """
 
+import os
+import sys
+
+# 添加项目根目录到路径
+project_root = os.path.dirname(os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
+if project_root not in sys.path:
+    sys.path.insert(0, project_root)
+
 from planner.core.pipeline import Pipeline, Operation, create_llm_operation, create_transform_operation
 from planner.optimizer.optimizer import PipelineOptimizer
 from planner.core.executor import MockExecutor
