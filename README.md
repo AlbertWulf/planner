@@ -88,10 +88,33 @@ optimizer.print_summary()
 
 ## 运行示例
 
+### 模拟执行（快速测试）
+
 ```bash
-# 从项目根目录运行
+# 使用 MockExecutor 进行快速测试
 python -m planner.examples.medical_summary_example
 ```
+
+### 真实执行（使用 vLLM）
+
+```bash
+# 1. 启动 vLLM 服务
+python -m vllm.entrypoints.openai.api_server \
+    --model /path/to/your/model \
+    --host 0.0.0.0 \
+    --port 8000
+
+# 2. 运行真实示例
+python -m planner.examples.real_medical_example --mode test
+
+# 3. 运行完整优化
+python -m planner.examples.real_medical_example --mode optimize
+
+# 或使用快捷脚本（Windows）
+planner\run_example.bat
+```
+
+详细说明请查看 [REAL_EXECUTION_GUIDE.md](REAL_EXECUTION_GUIDE.md)
 
 ## 核心概念
 
